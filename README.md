@@ -2,147 +2,129 @@
 
 ![Wazuh](https://img.shields.io/badge/SIEM-Wazuh-blue)
 ![Windows](https://img.shields.io/badge/Endpoint-Windows%2010-blue)
-![Linux](https://img.shields.io/badge/Linux-Kali%20Linux-black)
-![Wireshark](https://img.shields.io/badge/Network-Wireshark-blue)
 ![MITRE ATT&CK](https://img.shields.io/badge/MITRE%20ATT%26CK-T1110-red)
 
 ## Overview
 
-This project documents a hands-on Security Operations Center (SOC) analyst home lab designed to practice the complete security monitoring, detection, investigation, and incident response workflow.
+This project documents a hands-on **Security Operations Center (SOC) analyst home lab** built around **Wazuh SIEM** and a monitored **Windows 10 endpoint**.
 
-The lab covers:
-
-- Network traffic analysis
-- Linux log investigation
-- Windows Event Log investigation
-- Endpoint and process analysis
-- Wazuh SIEM monitoring
-- Custom detection engineering
-- Alert correlation
-- IOC analysis
-- MITRE ATT&CK mapping
-- Incident response
-- Professional SOC reporting
-
-The project follows a practical SOC workflow:
+The lab demonstrates a practical endpoint-monitoring and detection workflow:
 
 ```text
-Log Collection
+Wazuh Deployment
       ↓
-Detection
+Windows Endpoint Onboarding
       ↓
-Alert Triage
+Windows Security Log Collection
       ↓
-Investigation
+Event Investigation
       ↓
-Event Correlation
+Process / Service Investigation
+      ↓
+Detection Engineering
+      ↓
+Alert Correlation
       ↓
 IOC Analysis
       ↓
 Incident Response
       ↓
-Reporting
+SOC Reporting
 ```
 
-## Objectives
+The project focuses on practical SOC activities including endpoint telemetry collection, Windows event analysis, custom detection rules, alert correlation, investigation, MITRE ATT&CK mapping, and incident response.
 
-- Understand SOC monitoring and alert triage
-- Analyze network traffic using Wireshark
-- Investigate Linux authentication and system logs
-- Investigate Windows Security Events
-- Monitor Windows endpoints using Wazuh
+---
+
+# Objectives
+
+- Deploy and configure Wazuh in a virtual lab
+- Onboard a Windows 10 endpoint using the Wazuh Agent
+- Collect Windows Security Event Logs
+- Investigate Windows authentication activity
+- Investigate process and service activity
+- Analyze network connections associated with endpoint processes
 - Create custom Wazuh detection rules
-- Perform alert correlation
-- Investigate suspicious authentication activity
-- Analyze processes and network connections
-- Map suspicious activity to MITRE ATT&CK
-- Perform incident response and impact assessment
-- Produce professional SOC incident documentation
+- Correlate repeated authentication failures
+- Investigate a Level 10 Wazuh alert
+- Perform IOC analysis
+- Map suspicious behavior to MITRE ATT&CK
+- Produce a professional SOC incident report
 
-## Lab Architecture
+---
+
+# Lab Architecture
 
 ```text
-                         ┌─────────────────────┐
-                         │     Kali Linux      │
-                         │ Network Analysis    │
-                         │ Security Testing    │
-                         └──────────┬──────────┘
-                                    │
-                             Isolated Lab
-                                  Network
-                                    │
-                 ┌──────────────────┴──────────────────┐
-                 │                                     │
-        ┌────────▼─────────┐                  ┌────────▼─────────┐
-        │    Windows 10    │                  │   Wazuh Server   │
-        │                  │                  │                  │
-        │  Wazuh Agent    │─────────────────▶│ Wazuh Manager    │
-        │  Security Logs  │                  │ Wazuh Indexer    │
-        │  Process Events │                  │ Wazuh Dashboard  │
-        └──────────────────┘                  └──────────────────┘
+┌─────────────────────────┐
+│       Windows 10        │
+│                         │
+│      Wazuh Agent        │
+│      Security Logs      │
+│      Process Events     │
+└────────────┬────────────┘
+             │
+             │ Telemetry
+             ▼
+┌─────────────────────────┐
+│      Wazuh Server       │
+│                         │
+│     Wazuh Manager       │
+│     Wazuh Indexer       │
+│     Wazuh Dashboard     │
+└─────────────────────────┘
 ```
 
-### Main Components
+## Main Components
 
 | Component | Purpose |
 |---|---|
-| Wazuh | SIEM / endpoint monitoring and detection |
-| Windows 10 | Endpoint monitoring and Windows Event analysis |
-| Kali Linux | Security analysis and testing |
-| Wireshark | Network packet analysis |
-| Windows Event Logs | Authentication and process investigation |
-| MITRE ATT&CK | Adversary behavior mapping |
+| Wazuh 4.14.7 | SIEM, endpoint monitoring and detection |
+| Windows 10 | Monitored endpoint and Windows event investigation |
+| Wazuh Agent | Collects Windows telemetry |
 | VMware | Virtualized lab environment |
+| Windows Event Logs | Authentication, process and security investigation |
+| MITRE ATT&CK | Adversary behavior mapping |
 
-# Day 1 — Wireshark Packet Analysis
+---
 
-## Focus
+# Lab Implementation
 
-Network traffic analysis and packet-level investigation.
+## 1. Wazuh Deployment
 
-## Activities
+A **Wazuh 4.14.7 virtual appliance** was deployed in VMware.
 
-- Inspected network packets
-- Analyzed IP communication
-- Examined TCP and UDP traffic
-- Investigated DNS traffic
-- Examined HTTP/HTTPS communication
-- Identified network communication patterns
+The Wazuh environment provided:
 
-## Skills Demonstrated
+- Wazuh Manager
+- Wazuh Indexer
+- Wazuh Dashboard
+- Alert generation and event analysis
 
-- Packet analysis
-- Network protocol understanding
-- Traffic investigation
-- Basic network threat analysis
+The Wazuh Dashboard was used as the primary SOC investigation interface.
 
-# Day 2 — Linux Log Analysis
+---
 
-## Focus
+## 2. Windows Endpoint Onboarding
 
-Linux authentication and system log investigation.
+A Windows 10 VM was connected to the isolated lab network and onboarded to Wazuh using the Wazuh Agent.
 
-## Activities
+The endpoint was registered with Wazuh and configured to communicate with the Wazuh Manager.
 
-- Reviewed authentication events
-- Investigated successful and failed authentication
-- Analyzed timestamps and user activity
-- Correlated related log events
+The Windows agent was configured to collect the **Security Event Channel** for centralized investigation.
 
-## Skills Demonstrated
+### Lab IPs
 
-- Linux log analysis
-- Authentication investigation
-- Event correlation
-- Timeline analysis
+| System | IP Address |
+|---|---|
+| Wazuh Server | `192.168.244.128` |
+| Windows 10 Endpoint | `192.168.244.130` |
 
-# Day 3 — Windows Event Investigation
+---
 
-## Focus
+# Windows Security Event Investigation
 
-Windows Security Event analysis.
-
-## Events Investigated
+The following Windows events were investigated:
 
 | Event ID | Description |
 |---|---|
@@ -151,46 +133,45 @@ Windows Security Event analysis.
 | 4672 | Special privileges assigned to a new logon |
 | 4634 | Logoff |
 | 4688 | Process creation |
+| 7045 | Service installation |
 
 ## Investigation Areas
 
 - Failed authentication
 - Successful authentication
 - Administrator activity
-- Logon types
-- Authentication packages
+- Logon type
+- Authentication package
 - Process creation
-- Security event correlation
+- Windows services
+- Network connections
+- Event correlation
 
-# Day 4 — Process Investigation & Alert Correlation
+---
 
-## Focus
+# Process & Endpoint Investigation
 
-Endpoint process and service investigation.
+Endpoint activity was investigated using Windows process information and Wazuh telemetry.
 
-## Activities
+Areas investigated included:
 
-- Investigated process IDs
-- Examined parent-child process relationships
-- Investigated `svchost.exe`
-- Examined Windows services
-- Investigated network connections
-- Reviewed service installation events
-- Investigated process creation events
+- Process IDs
+- Parent-child process relationships
+- `svchost.exe`
+- Windows services
+- Network connections
+- Service installation events
+- Process creation events
 
-## Investigation Result
-
-The investigated Windows processes and services were consistent with legitimate Windows system activity.
+The investigated Windows processes and services were consistent with legitimate Windows activity.
 
 No confirmed malicious process or persistence mechanism was identified.
 
-# Day 5 — Wazuh Detection Engineering
+---
 
-## Focus
+# Detection Engineering
 
-Custom detection and alert correlation.
-
-A Windows failed authentication event was used to build a multi-stage Wazuh detection.
+A controlled failed-authentication scenario was used to build a multi-stage Wazuh detection.
 
 ## Detection Chain
 
@@ -214,7 +195,7 @@ Level 10 Alert
 
 ## Custom Rule 100101
 
-Detects failed authentication against the administrator account:
+Detects failed authentication against the monitored administrator account:
 
 ```xml
 <rule id="100101" level="8">
@@ -227,7 +208,7 @@ Detects failed authentication against the administrator account:
 
 ## Custom Rule 100102
 
-Correlates repeated failed authentication attempts:
+Correlates repeated failed authentication events:
 
 ```xml
 <rule id="100102" level="10" frequency="3" timeframe="120">
@@ -239,17 +220,19 @@ Correlates repeated failed authentication attempts:
 
 ## Detection Result
 
-The correlation rule successfully generated a **Level 10** alert after detecting three failed authentication attempts within two minutes.
+The correlation rule successfully generated a **Level 10 alert** after detecting three failed authentication attempts within two minutes.
 
-# Day 6 — Incident Response & SOC Reporting
+The correlation logic was validated through controlled testing in the isolated lab environment.
 
-## Incident
+---
 
-### Potential Brute Force / Suspicious Authentication Activity
+# Incident Investigation
 
-The existing Wazuh Level 10 alert was investigated as a complete SOC incident.
+## Potential Brute Force / Suspicious Authentication Activity
 
-## Alert Details
+The Wazuh Level 10 alert was investigated as a complete SOC incident.
+
+### Alert Details
 
 | Field | Value |
 |---|---|
@@ -292,13 +275,14 @@ SOC Investigation
 No Confirmed Compromise
 ```
 
-## Investigation
+---
+
+# Investigation Findings
 
 The investigation examined:
 
 - Windows authentication events
-- Failed logons
-- Successful logons
+- Failed and successful logons
 - Privileged logon activity
 - Target account
 - Logon type
@@ -313,7 +297,9 @@ The associated `svchost.exe` process was investigated and found to be consistent
 
 No evidence of malicious process execution, persistence, unauthorized privilege escalation, or data compromise was identified.
 
-## IOC Analysis
+---
+
+# IOC Analysis
 
 | Indicator | Assessment |
 |---|---|
@@ -327,19 +313,21 @@ No evidence of malicious process execution, persistence, unauthorized privilege 
 | Malicious file hash | Not identified |
 | Suspicious executable | Not identified |
 
-### IOC Conclusion
+**IOC conclusion:** No confirmed malicious IOC was identified during the investigation.
 
-No confirmed malicious IOC was identified during the investigation.
+---
 
 # MITRE ATT&CK Mapping
 
 ## T1110 — Brute Force
 
-The repeated failed authentication pattern was mapped to:
+The repeated failed authentication behavior was mapped to:
 
 **MITRE ATT&CK T1110 — Brute Force**
 
-The mapping represents the detected authentication behavior. It does not by itself prove that an actual attacker successfully compromised the endpoint.
+This mapping represents the observed authentication behavior. It does not by itself prove that an attacker successfully compromised the endpoint.
+
+---
 
 # Impact Assessment
 
@@ -374,6 +362,8 @@ was identified.
 
 **Low**
 
+---
+
 # Severity Assessment
 
 | Factor | Assessment |
@@ -388,15 +378,19 @@ was identified.
 | Final Classification | Potential Brute Force |
 | Confirmed Compromise | No |
 
+> **Important:** The authentication failures were deliberately generated during controlled lab testing. The alert demonstrates that the detection logic worked; it should not be presented as evidence of a real-world attack against the endpoint.
+
+---
+
 # Incident Response
 
 ## Containment
 
-Recommended actions for a real production incident:
+For a real production incident, recommended actions would include:
 
 - Monitor the targeted administrator account
 - Review subsequent `4625`, `4624`, and `4672` events
-- Apply account lockout or temporary restriction if repeated attempts continue
+- Apply account lockout or temporary restriction if attempts continue
 - Identify and restrict the actual source if a malicious source is discovered
 - Escalate if successful authentication follows repeated failures
 
@@ -408,13 +402,13 @@ No eradication action was required because no malicious process, persistence mec
 
 ## Recovery
 
-Recommended actions:
-
 - Continue endpoint monitoring
 - Monitor authentication activity
 - Maintain Wazuh detection rules
 - Review future authentication events
 - Escalate recurring suspicious activity
+
+---
 
 # Final SOC Verdict
 
@@ -422,11 +416,13 @@ Recommended actions:
 
 Wazuh successfully detected repeated failed authentication attempts against an administrator account.
 
-The detection chain from Windows Event ID 4625 through Wazuh Rules 60122, 100101, and 100102 functioned as intended.
+The detection chain from Windows Event ID 4625 through Wazuh Rules **60122, 100101, and 100102** functioned as intended.
 
 The associated authentication, process, and endpoint activity was investigated. No evidence of successful unauthorized access, malware execution, persistence, privilege escalation, or data compromise was identified.
 
 The activity was generated as part of controlled security testing in the laboratory environment.
+
+---
 
 # Skills Demonstrated
 
@@ -434,11 +430,10 @@ The activity was generated as part of controlled security testing in the laborat
 - SIEM monitoring
 - Wazuh
 - Windows Event Log analysis
-- Linux log analysis
-- Network traffic analysis
-- Wireshark
+- Endpoint monitoring
 - Authentication investigation
 - Process investigation
+- Service investigation
 - Event correlation
 - Detection engineering
 - Custom Wazuh rules
@@ -449,24 +444,29 @@ The activity was generated as part of controlled security testing in the laborat
 - Incident documentation
 - Security reporting
 
+---
+
 # Tools & Technologies
 
 - Wazuh 4.14.7
 - Windows 10
-- Kali Linux
-- Wireshark
 - VMware
 - Windows Event Viewer
 - PowerShell
-- Linux command line
 - MITRE ATT&CK
+
+---
 
 # Project Outcome
 
-This lab provided hands-on experience with the complete SOC workflow:
+This lab provided hands-on experience with a practical SOC workflow:
 
 ```text
-Collect
+Deploy
+  ↓
+Onboard Endpoint
+  ↓
+Collect Telemetry
   ↓
 Detect
   ↓
@@ -485,7 +485,9 @@ Document
 Close
 ```
 
-The project demonstrates practical experience beyond simply configuring a SIEM, including detection engineering, alert investigation, endpoint analysis, incident classification, and professional security reporting.
+The project demonstrates practical experience beyond simply configuring a SIEM, including endpoint onboarding, Windows telemetry analysis, detection engineering, alert investigation, endpoint/process analysis, incident classification, and professional security reporting.
+
+---
 
 # Repository Structure
 
@@ -498,19 +500,17 @@ soc-analyst-home-lab/
 │   └── soc-lab-architecture.png
 │
 ├── documentation/
-│   ├── day1-wireshark.md
-│   ├── day2-linux-logs.md
-│   ├── day3-windows-events.md
-│   ├── day4-process-investigation.md
-│   ├── day5-wazuh-detection.md
-│   └── day6-incident-response.md
+│   ├── 01-wazuh-setup.md
+│   ├── 02-windows-agent-setup.md
+│   ├── 03-windows-event-investigation.md
+│   ├── 04-process-investigation.md
+│   ├── 05-wazuh-detection-engineering.md
+│   └── 06-incident-response.md
 │
 ├── detection-rules/
 │   └── local_rules.xml
 │
 ├── evidence/
-│   ├── wireshark/
-│   ├── linux/
 │   ├── windows/
 │   └── wazuh/
 │
@@ -521,6 +521,8 @@ soc-analyst-home-lab/
     ├── rule-100102.png
     └── incident-alert.png
 ```
+
+---
 
 # Disclaimer
 
