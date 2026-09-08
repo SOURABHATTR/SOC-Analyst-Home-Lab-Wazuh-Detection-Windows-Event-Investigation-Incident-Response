@@ -1,0 +1,24 @@
+<!--
+Wazuh custom detection rules
+Project: SOC Analyst Home Lab
+Purpose: Detect targeted failed logins and correlate repeated attempts
+-->
+
+<group name="windows,authentication_failed,custom_detection,">
+
+  <!-- Rule 100101: Targeted failed login -->
+  <rule id="100101" level="8">
+    <if_sid>60122</if_sid>
+    <field name="win.eventdata.targetUserName">^Madhusughand$</field>
+    <description>Custom Detection: Failed login attempt against administrator account</description>
+    <group>windows,authentication_failed,custom_detection,</group>
+  </rule>
+
+  <!-- Rule 100102: Three targeted failed logins within two minutes -->
+  <rule id="100102" level="10" frequency="3" timeframe="120">
+    <if_matched_sid>100101</if_matched_sid>
+    <description>Custom Detection: Possible brute-force attack - 3 failed logins within 2 minutes</description>
+    <group>windows,authentication_failed,bruteforce,custom_detection,</group>
+  </rule>
+
+</group>
